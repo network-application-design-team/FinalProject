@@ -26,20 +26,17 @@ channel.exchange_declare(exchange="Place", exchange_type="direct")
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(4,GPIO.IN)
 
-prev_input = 0
 try:
     while True:
         # Take the reading
         input = GPIO.input(4)
-        # If last reading was low and this is high, alert
-        if ((not prev_input) and input):
+        # Test if input is high or low
+        if (input == 1):
             print("Under Pressure")
-            print(input)
-        # Update prev_input
-        prev_input = input
         # Slight Pause
         time.sleep(0.1)
 except KeyboardInterrupt:
-    passfinally:
+    pass
+finally:
         GPIO.cleanup()
 
