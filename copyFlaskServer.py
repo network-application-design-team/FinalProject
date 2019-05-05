@@ -52,6 +52,16 @@ def requires_auth(f):
     return decorated
 
 
+
+templateData = {
+        "title": "Hello!",
+        "time": "",
+        "location": "",
+        "color" : "green",
+}
+
+
+
 @app.route("/", methods=["GET"])
 @requires_auth
 def hello():
@@ -64,8 +74,8 @@ def hello():
 
 """Pymongo"""
 client = pymongo.MongoClient()
-db = client.ECE4564_Assignment_3
-db.authenticate("Kishan", "Buse", source="ECE4564_Assignment_3")
+db = client.final_Proj
+db.authenticate("Kishan", "Buse", source="final_Proj")
 col = db.service_auth
 
 if __name__ == "__main__":
