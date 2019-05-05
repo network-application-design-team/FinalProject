@@ -53,7 +53,11 @@ channel.basic_consume(callback, queue='Torg', no_ack=True)
 
 channel.start_consuming()
 
+<<<<<<< HEAD
 """RPi GPIO LED section"""
+=======
+"""RPi GPIO section"""
+>>>>>>> 1711956fb6d571264575d473a776b9035586881f
 rPin = 11
 gPin = 13
 bPin = 15
@@ -80,6 +84,7 @@ def off():
     turnOff(rPin)
     turnOff(gPin)
     turnOff(bPin)
+<<<<<<< HEAD
 """RPi GPIO LED end section"""
 
 """Flask Portion"""
@@ -90,6 +95,14 @@ def check_auth(username, password):
 
 def authenticate():
     """Sends a 401 response that enables basic auth"""
+=======
+
+"""Flask Portion"""
+def check_auth(username, password):
+    return username == 'Silver' and password == 'Surfer'
+
+def authenticate():
+>>>>>>> 1711956fb6d571264575d473a776b9035586881f
     return Response(
             "Could not verify ypur access level for that URL. \n"
             "You have to login with proper Hokie credentials",
@@ -106,6 +119,7 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
+<<<<<<< HEAD
 templateData = {
         "title": "Hello!",
         "time": "",
@@ -146,6 +160,12 @@ def return4thLib():
         locString = "Torg Bridge"
         templateData["location"] = locString
         return render_template("main.html", **templateData)
+=======
+@app.route("/4thLib", methods=['GET'])
+@requires_auth
+def return4thLib():
+    return 
+>>>>>>> 1711956fb6d571264575d473a776b9035586881f
 
 @app.errorhandler(404)
 def not_found(error):
