@@ -22,7 +22,7 @@ connection = pika.BlockingConnection(
     pika.ConnectionParameters(node, 5672, "/", credentials)
 )
 channel = connection.channel()
-channel.exchange_declare(exchange="Place", exchange_type="direct")
+channel.exchange_declare(exchange="Places", exchange_type="direct")
 
 
 
