@@ -58,9 +58,11 @@ channel.queue_declare(queue='TorgB')
 channel.queue_bind(exchange='Places', queue='TorgB',  routing_key='TorgB')
 
 def callback(ch, method, properties, body):
-    checkpoint = 1
-    print(" hot")
-"""
+    #checkpoint = 1
+    #print(" hot")
+    
+
+""" 
 def basic_consume(self,
                   queue,
                   on_message_callback,
@@ -191,7 +193,7 @@ def startApp():
     channel.basic_consume(on_message_callback=callback, queue='4Lib')
     channel.basic_consume(on_message_callback=callback, queue='2Lib')
     channel.basic_consume(on_message_callback=callback, queue='TorgB')
-
+    #print("yes")
     channel.start_consuming()
 
 
