@@ -182,8 +182,8 @@ col = db.service_Auth
 
 if __name__ == "__main__":
 #    app.run(host='0.0.0.0', port=80, debug=True)
-#    t = threading.Thread(target=startApp)
- #   t.start()
+    t = threading.Thread(target=startApp)
+    t.start()
 
     user1 = {"user": "Kishan", "Pass": "Something", "Delete": "True"}
     user2 = {"user": "Buse", "Pass": "Honaker", "Delete": "True"}
