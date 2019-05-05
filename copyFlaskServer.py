@@ -58,11 +58,11 @@ channel.queue_declare(queue='TorgB')
 channel.queue_bind(exchange='Places', queue='TorgB',  routing_key='TorgB')
 
 def callback(ch, method, properties, body):
-    #checkpoint = 1
-    #print(" hot")
+    checkpoint = 1
+    print(" hot")
     
 
-""" 
+"""
 def basic_consume(self,
                   queue,
                   on_message_callback,
