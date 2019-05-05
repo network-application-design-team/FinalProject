@@ -1,3 +1,10 @@
+from flask import Flask, request, render_template, Response, url_for
+from flask import make_response
+from functools import wraps
+import requests
+
+app = Flask(__name__)
+#!/usr/bin/env python3
 import socket
 import pika
 import sys
@@ -7,7 +14,7 @@ import threading
 import subprocess
 import datetime
 
-# Imports for gpio
+"""Imports for gpio"""
 import RPi.GPIO as GPIO
 
 def fetch_ip():
@@ -46,7 +53,7 @@ channel.basic_consume(callback, queue='Torg', no_ack=True)
 
 channel.start_consuming()
 
-# RPi GPIO section 
+"""RPi GPIO section"""
 rPin = 11
 gPin = 13
 bPin = 15
@@ -74,6 +81,39 @@ def off():
     turnOff(gPin)
     turnOff(bPin)
 
-    
+"""Flask Portion"""
+def check_auth(username, password):
+    return username == 'Silver' and password == 'Surfer'
+
+def authenticate():
+    return Response(
+            "Could not verify ypur access level for that URL. \n"
+            "You have to login with proper Hokie credentials",
+            401,
+            {"WWW_Authenticate": 'Basic realm="Login Required"'},
+            )
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route("/4thLib", methods=['GET'])
+@requires_auth
+def return4thLib():
+    return 
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
+
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8090, debug=True)
