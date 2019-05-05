@@ -13,6 +13,7 @@ import pymongo
 import threading
 import subprocess
 import datetime
+import pdb
 
 """Imports for gpio"""
 import RPi.GPIO as GPIO
@@ -112,9 +113,9 @@ def requires_auth(f):
         if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         return f(*args, **kwargs)
-#    return username == "admin" and password == "secret"
-    return decorated
 
+    return decorated
+    
 templateData = {
         "title": "Hello!",
         "time": "",
@@ -165,10 +166,6 @@ def returnTorg():
         locString = "Torg Bridge"
         templateData["location"] = locString
         return render_template("main.html", **templateData)
-
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
 
 def startApp():
     channel.basic_consume(on_message_callback=callback, queue='4Lib')
