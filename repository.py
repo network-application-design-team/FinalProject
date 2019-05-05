@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, Response, url_for
+from flask import jsonify, Flask, request, render_template, Response, url_for
 from flask import make_response
 from functools import wraps
 import requests
@@ -35,23 +35,29 @@ channel = connection.channel()
 
 channel.exchange_declare(exchange='Places', exchange_type='direct')
 
-channel.queue_declare(queue='4thLib')
-channel.queue_bind(exchange='Places', queue='4thLib', routing_key='4thLib')
-channel.queue_declare(queue='2ndLib')
-channel.queue_bind(exchange='Places', queue='2ndLib', routing_key='2ndLib')
-channel.queue_declare(queue='Torg')
-channel.queue_bind(exchange='Places', queue='Torg',  routing_key='Torg')
+channel.queue_declare(queue='4Lib')
+
+channel.queue_bind(exchange='Places', queue='4Lib', routing_key='4Lib')
+channel.queue_declare(queue='2Lib')
+channel.queue_bind(exchange='Places', queue='2ndLib', routing_key='2Lib')
+channel.queue_declare(queue='TorgB')
+channel.queue_bind(exchange='Places', queue='TorgB',  routing_key='TorgB')
 
 def callback(ch, method, properties, body):
     checkpoint = 1
     print(" hot")
-   
-
-channel.basic_consume(callback, queue='4thLib', no_ack=True)
-channel.basic_consume(callback, queue='2ndLib', no_ack=True)
-channel.basic_consume(callback, queue='Torg', no_ack=True)
-
-channel.start_consuming()
+""" 
+def basic_consume(self,
+                  queue,
+                  on_message_callback,
+                  auto_ack=False,
+                  exclusive=False,
+                  consumer_tag=None,
+                  arguments=None):   
+    print("hot")
+"""
+#channel.basic_consume(callback, queue='4thLib', no_ack=True)
+#channel.basic_consume(callback, queue='2ndLib', no_ack=True)
 
 """RPi GPIO LED section"""
 rPin = 11
@@ -84,6 +90,8 @@ def off():
 
 """Flask Portion"""
 def check_auth(username, password):
+  #  return username == "admin" and password == "secret"
+
     userList = col.find_one({"user": username})
     passList = col.find_one({"Pass": password})
     return userList != None and passList != None
@@ -91,7 +99,7 @@ def check_auth(username, password):
 def authenticate():
     """Sends a 401 response that enables basic auth"""
     return Response(
-            "Could not verify ypur access level for that URL. \n"
+            "Could not verify your access level for that URL. \n"
             "You have to login with proper Hokie credentials",
             401,
             {"WWW_Authenticate": 'Basic realm="Login Required"'},
@@ -104,6 +112,7 @@ def requires_auth(f):
         if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         return f(*args, **kwargs)
+#    return username == "admin" and password == "secret"
     return decorated
 
 templateData = {
@@ -112,6 +121,16 @@ templateData = {
         "location": "",
         "color" : "green",
 }
+
+@app.route("/", methods=["GET"])
+@requires_auth
+def hello():
+    if request.method == "GET":
+        now = datetime.datetime.now()
+        timeString = now.strftime("%Y-%m-%d %H:%M")
+        templateData["time"] = timeString
+        
+        return render_template("main.html", **templateData)
 
 
 @app.route("/4thLib", methods=['GET'])
@@ -127,7 +146,7 @@ def return4thLib():
 
 @app.route("/2ndLib", methods=['GET'])
 @requires_auth
-def return4thLib():
+def return2ndLib():
     if request.method == "GET":
         now = datetime.datetime.now()
         timeString = now.strftime("%Y-%m-%d %H:%M")
@@ -138,7 +157,7 @@ def return4thLib():
 
 @app.route("/Torg", methods=['GET'])
 @requires_auth
-def return4thLib():
+def returnTorg():
     if request.method == "GET":
         now = datetime.datetime.now()
         timeString = now.strftime("%Y-%m-%d %H:%M")
@@ -151,5 +170,36 @@ def return4thLib():
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+def startApp():
+    channel.basic_consume(on_message_callback=callback, queue='4Lib')
+    channel.basic_consume(on_message_callback=callback, queue='2Lib')
+    channel.basic_consume(on_message_callback=callback, queue='TorgB')
+
+    channel.start_consuming()
+
+client = pymongo.MongoClient()
+db = client.final_Proj
+db.authenticate("Kishan", "Buse", source = "final_Proj")
+col = db.service_Auth
+
 if __name__ == "__main__":
+#    app.run(host='0.0.0.0', port=80, debug=True)
+    t = threading.Thread(target=startApp)
+    t.start()
+
+    user1 = {"user": "Kishan", "Pass": "Something", "Delete": "True"}
+    user2 = {"user": "Buse", "Pass": "Honaker", "Delete": "True"}
+    user3 = {"user": "Ethan", "Pass": "Password", "Delete": "True"}
+    posts = [user1, user2, user3]
+    col.insert_many(posts)
+
+
+    """ 
+    channel.basic_consume(on_message_callback=callback, queue='4Lib')
+    channel.basic_consume(on_message_callback=callback, queue='2Lib')
+    channel.basic_consume(on_message_callback=callback, queue='TorgB')
+
+    channel.start_consuming()
+    """
     app.run(host='0.0.0.0', port=80, debug=True)
+
