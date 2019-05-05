@@ -13,6 +13,8 @@ import RPi.GPIO as GPIO
 
 username = "Honaker"
 password = "buse"
+
+node = sys.argv[2]
     
 credentials = pika.PlainCredentials(username, password)
 connection = pika.BlockingConnection(
