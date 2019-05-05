@@ -53,7 +53,7 @@ channel.queue_declare(queue='4Lib')
 
 channel.queue_bind(exchange='Places', queue='4Lib', routing_key='4Lib')
 channel.queue_declare(queue='2Lib')
-channel.queue_bind(exchange='Places', queue='2ndLib', routing_key='2Lib')
+channel.queue_bind(exchange='Places', queue='2Lib', routing_key='2Lib')
 channel.queue_declare(queue='TorgB')
 channel.queue_bind(exchange='Places', queue='TorgB',  routing_key='TorgB')
 
