@@ -23,6 +23,7 @@ channel.exchange_declare(exchange="Place", exchange_type="direct")
 
 
 # Requires infinite while loop, may require multi-threading
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(4,GPIO.IN)
 
