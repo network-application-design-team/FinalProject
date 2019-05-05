@@ -7,6 +7,8 @@ import threading
 import subprocess
 import datetime
 
+# Imports for gpio
+import RPi.GPIO as GPIO
 
 def fetch_ip():
     return((([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")] or [[(s.connect(("8.8.8.8", 53)), s.getsockname()[0], s.close())\
@@ -43,3 +45,35 @@ channel.basic_consume(callback, queue='2ndLib', no_ack=True)
 channel.basic_consume(callback, queue='Torg', no_ack=True)
 
 channel.start_consuming()
+
+# RPi GPIO section 
+rPin = 11
+gPin = 13
+bPin = 15
+
+GPIO.setwarnings(False)
+
+def blink(pin):
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.HIGH)
+
+def turnOff(pin):
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(GPIO.LOW)
+
+def redOn():
+    blink(rPin)
+
+def greenOn():
+    blink(gPin)
+
+def off():
+    turnOff(rPin)
+    turnOff(gPin)
+    turnOff(bPin)
+
+    
+
+
