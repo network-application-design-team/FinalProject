@@ -16,3 +16,5 @@ connection = pika.BlockingConnection(
 )
 channel = connection.channel()
 channel.exchange_declare(exchange="Place", exchange_type="direct")
+
+connection.close()
