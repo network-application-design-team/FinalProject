@@ -33,40 +33,36 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(4, GPIO.IN)
 
-once = True
-
+prevState = 2
+cap = "Empty";
 try:
     while True:
        # print(node)
         # Take the reading
         input = GPIO.input(4)
         # Test if input is high or low
-        if (input == 0):
-            if once: 
-                if place == "4thLib":
-                
-                    channel.basic_publish(
-                    exchange='Places', routing_key='4Lib', body=place
-                    )
-
-                elif place == "2ndLib":
-
-                    channel.basic_publish(
-                    exchange='Places', routing_key='2Lib', body=place
-                    )
-
-
-                elif place == "Torg":
-                    channel.basic_publish(
-                    exchange='Places', routing_key='TorgB', body=place
-                    )
+        if (input != prevState): 
+            if (input == 1):
+                cap = "Full"
+            else:
+                cap = "Empty"
+            if place == "4thLib":
+                channel.basic_publish(
+                exchange='Places', routing_key='4Lib', body=cap
+                )
+            elif place == "2ndLib":
+                channel.basic_publish(
+                exchange='Places', routing_key='2Lib', body=cap
+                )
 
 
-                else:
-                    print("Not a correct place")
-                once = False
-        else:
-            once = True
+            elif place == "Torg":
+                channel.basic_publish(
+                exchange='Places', routing_key='TorgB', body=cap
+                )
+            else:
+                print("Not a correct place")
+            prevState = input
         # Slight Pause
         time.sleep(0.1)
 except KeyboardInterrupt:

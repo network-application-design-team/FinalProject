@@ -210,21 +210,27 @@ def changeLoc(location, cap):
 def call4th(ch, method, properties, body):
     x, y, place = channel.basic_get('4Lib')
     p = body.decode('utf-8')
-    if p == "4thLib":
+    if p == "Full":
         FourthVal = "Full"
         send = "http://" + str(ip) + "/Update/Fourth/Full"
         r = requests.get(send)
       #  print("4thLib is Full")
+    if p == "Empty":
+        send = ""http://" + str(ip) + "/Update/Fourth/Empty"
+        r = requests.get(send)
 
 def call2nd(ch, method, properties, body):
     x, y, place = channel.basic_get('2Lib')
     
     p = body.decode('utf-8')
-    if p == "2ndLib":
+    if p == "Full":
         send = "http://" + str(ip) + "/Update/Second/Full"
         r = requests.get(send)
         SecondVal = "Full"
        # print("2ndLib is Full")
+    if p == "Empty":
+        send = ""http://" + str(ip) + "/Update/Second/Empty"
+        r = requests.get(send)
 
 
 def callTorg(ch, method, properties, body):
@@ -233,11 +239,14 @@ def callTorg(ch, method, properties, body):
     #channel.basic_consume(queue
     p = body.decode('utf-8')
 #    print(p)
-    if p == "Torg":
+    if p == "Full":
         send = "http://" + str(ip) + "/Update/Torg/Full"
         
         r = requests.get(send)
-        
+    if p == "Empty":
+        send = ""http://" + str(ip) + "/Update/Torg/Empty"
+        r = requests.get(send)
+    
 
 def startApp():
     channel.basic_consume(on_message_callback=call4th, queue='4Lib',auto_ack=True)
