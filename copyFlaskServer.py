@@ -135,13 +135,16 @@ def requires_auth(f):
 
     return decorated
 
-
+FourthVal = "Empty"
+SecondVal = "Empty"
+TorgVal = "Empty"
 
 templateData = {
         "title": "Hello!",
         "time": "",
-        "location": "",
-        "color" : "green",
+        "4thFloor": "",
+        "2ndFloor": "",
+        "TorgBridge": "",
 }
 
 
@@ -164,7 +167,11 @@ def return4thLib():
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
         locString = "4th floor Lib"
-        templateData["location"] = locString
+        templateData["4thFloor"] = FourthVal
+        templateData["2ndFloor"] = SecondVal
+        templateData["TorgBridge"] = TorgVal
+
+        #templateData["location"] = locString
         return render_template("main.html", **templateData)
 
 @app.route("/2ndLib", methods=['GET'])
@@ -175,7 +182,11 @@ def return2ndLib():
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
         locString = "2nd floor Lib"
-        templateData["location"] = locString
+        templateData["4thFloor"] = FourthVal
+        templateData["2ndFloor"] = SecondVal
+        templateData["TorgBridge"] = TorgVal
+
+        #templateData["location"] = locString
         return render_template("main.html", **templateData)
 
 @app.route("/Torg", methods=['GET'])
@@ -186,13 +197,33 @@ def returnTorg():
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
         locString = "Torg Bridge"
-        templateData["location"] = locString
+        templateData["4thFloor"] = FourthVal
+        templateData["2ndFloor"] = SecondVal
+        templateData["TorgBridge"] = TorgVal
+
         return render_template("main.html", **templateData)
 
+def call4th():
+    x, y, place = channel.basic_get('4Lib')
+    if place == "4thLib":
+        FourthVal = "Full"
+
+def call2nd():
+    x, y, place = channel.basic_get('2Lib')
+    if place == "2ndLib":
+        SecondVal = "Full"
+
+
+def callTorg():
+    x, y, place = channel.basic_get('TorgB')
+    if place == "TorgB":
+        TorgVal = "Full"
+
+
 def startApp():
-    channel.basic_consume(on_message_callback=callback, queue='4Lib')
-    channel.basic_consume(on_message_callback=callback, queue='2Lib')
-    channel.basic_consume(on_message_callback=callback, queue='TorgB')
+    channel.basic_consume(on_message_callback=call4th, queue='4Lib')
+    channel.basic_consume(on_message_callback=call2nd, queue='2Lib')
+    channel.basic_consume(on_message_callback=callTorg, queue='TorgB')
     #print("yes")
     channel.start_consuming()
 
