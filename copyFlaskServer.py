@@ -124,7 +124,6 @@ def authenticate():
         {"WWW-Authenticate": 'Basic realm="Login Required"'},
     )
 
-
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -139,12 +138,13 @@ FourthVal = "Empty"
 SecondVal = "Empty"
 TorgVal = "Empty"
 
+
 templateData = {
         "title": "Hello!",
         "time": "",
-        "4thFloor": "",
-        "2ndFloor": "",
-        "TorgBridge": "",
+        "FourthFloor": FourthVal,
+        "SecondFloor": SecondVal,
+        "TorgBridge": TorgVal
 }
 
 
@@ -153,11 +153,14 @@ templateData = {
 @requires_auth
 def hello():
     if request.method == "GET":
+        global FourthVal
+        global SecondVal
+        global TorgVal
         now = datetime.datetime.now()
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
-
-        return render_template("main.html", **templateData)
+        print(templateData)
+        return render_template("main.html", time=timeString, FourthFloor=templateData["FourthFloor"], SecondFloor=templateData["SecondFloor"], TorgBridge=templateData["TorgBridge"])
 
 @app.route("/4thLib", methods=['GET'])
 @requires_auth
@@ -166,12 +169,8 @@ def return4thLib():
         now = datetime.datetime.now()
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
-        locString = "4th floor Lib"
-        templateData["4thFloor"] = FourthVal
-        templateData["2ndFloor"] = SecondVal
-        templateData["TorgBridge"] = TorgVal
+        
 
-        #templateData["location"] = locString
         return render_template("main.html", **templateData)
 
 @app.route("/2ndLib", methods=['GET'])
@@ -181,12 +180,8 @@ def return2ndLib():
         now = datetime.datetime.now()
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
-        locString = "2nd floor Lib"
-        templateData["4thFloor"] = FourthVal
-        templateData["2ndFloor"] = SecondVal
-        templateData["TorgBridge"] = TorgVal
+        
 
-        #templateData["location"] = locString
         return render_template("main.html", **templateData)
 
 @app.route("/Torg", methods=['GET'])
@@ -196,34 +191,58 @@ def returnTorg():
         now = datetime.datetime.now()
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
-        locString = "Torg Bridge"
-        templateData["4thFloor"] = FourthVal
-        templateData["2ndFloor"] = SecondVal
-        templateData["TorgBridge"] = TorgVal
+        
 
         return render_template("main.html", **templateData)
 
-def call4th():
+@app.route("/Update/<location>/<cap>")
+def changeLoc(location, cap):
+    if location  == "Torg":
+        templateData["TorgBridge"] = cap
+    elif location == "Fourth":
+        templateData["FourthFloor"] = cap
+    elif location == "Second":
+        templateData["SecondFloor"] = cap
+    return "0"
+
+
+
+def call4th(ch, method, properties, body):
     x, y, place = channel.basic_get('4Lib')
-    if place == "4thLib":
+    p = body.decode('utf-8')
+    if p == "4thLib":
         FourthVal = "Full"
+        send = "http://" + str(ip) + "/Update/Fourth/Full"
+        r = requests.get(send)
+      #  print("4thLib is Full")
 
-def call2nd():
+def call2nd(ch, method, properties, body):
     x, y, place = channel.basic_get('2Lib')
-    if place == "2ndLib":
+    
+    p = body.decode('utf-8')
+    if p == "2ndLib":
+        send = "http://" + str(ip) + "/Update/Second/Full"
+        r = requests.get(send)
         SecondVal = "Full"
+       # print("2ndLib is Full")
 
 
-def callTorg():
-    x, y, place = channel.basic_get('TorgB')
-    if place == "TorgB":
-        TorgVal = "Full"
-
+def callTorg(ch, method, properties, body):
+    
+    #x, y, place = channel.basic_get('TorgB')
+    #channel.basic_consume(queue
+    p = body.decode('utf-8')
+#    print(p)
+    if p == "Torg":
+        send = "http://" + str(ip) + "/Update/Torg/Full"
+        
+        r = requests.get(send)
+        
 
 def startApp():
-    channel.basic_consume(on_message_callback=call4th, queue='4Lib')
-    channel.basic_consume(on_message_callback=call2nd, queue='2Lib')
-    channel.basic_consume(on_message_callback=callTorg, queue='TorgB')
+    channel.basic_consume(on_message_callback=call4th, queue='4Lib',auto_ack=True)
+    channel.basic_consume(on_message_callback=call2nd, queue='2Lib',auto_ack=True)
+    channel.basic_consume(on_message_callback=callTorg, queue='TorgB', auto_ack=True)
     #print("yes")
     channel.start_consuming()
 
@@ -238,7 +257,9 @@ if __name__ == "__main__":
     try:
         t = threading.Thread(target=startApp)
         t.start()
-
+        FourthVal = "Empty"
+        SecondVal = "Empty"
+        TorgVal = "Empty"
         user1 = {"user": "Kishan", "Pass": "Something", "Delete": "True"}
         user2 = {"user": "Buse", "Pass": "Honaker", "Delete": "True"}
         user3 = {"user": "Ethan", "Pass": "Password", "Delete": "True"}
@@ -247,4 +268,8 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=80, debug=True)
     except KeyboardInterrupt:
 #        zeroconf.close()
+        channel.queue_delete(queue='TorgB')
+        channel.queue_delete(queue='2Lib')
+        channel.queue_delete(queue='4Lib')
+        connection.close()
         col.delete_many({"Delete": "True"})
