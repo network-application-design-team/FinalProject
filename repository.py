@@ -40,13 +40,11 @@ channel.queue_declare(queue='4Lib')
 
 channel.queue_bind(exchange='Places', queue='4Lib', routing_key='4Lib')
 channel.queue_declare(queue='2Lib')
-channel.queue_bind(exchange='Places', queue='2ndLib', routing_key='2Lib')
+channel.queue_bind(exchange='Places', queue='2Lib', routing_key='2Lib')
 channel.queue_declare(queue='TorgB')
 channel.queue_bind(exchange='Places', queue='TorgB',  routing_key='TorgB')
 
-def callback(ch, method, properties, body):
-    checkpoint = 1
-    print(" hot")
+
 """ 
 def basic_consume(self,
                   queue,
@@ -168,10 +166,22 @@ def returnTorg():
         templateData["location"] = locString
         return render_template("main.html", **templateData)
 
+
+def call4th(ch, method, properties, body):
+    print("4th")
+
+def call2nd(ch, method, properties, body):
+    print("2nd")
+
+def callTorg(ch, method, properties, body):
+    print("Torg")
+
+
 def startApp():
-    channel.basic_consume(on_message_callback=callback, queue='4Lib')
-    channel.basic_consume(on_message_callback=callback, queue='2Lib')
-    channel.basic_consume(on_message_callback=callback, queue='TorgB')
+
+    channel.basic_consume(on_message_callback=call4th, queue='4Lib')
+    channel.basic_consume(on_message_callback=call2nd, queue='2Lib')
+    channel.basic_consume(on_message_callback=callTorg, queue='TorgB')
 
     channel.start_consuming()
 
