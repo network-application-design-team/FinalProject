@@ -118,7 +118,9 @@ def requires_auth(f):
 templateData = {
         "title": "Hello!",
         "time": "",
-        "location": "",
+        "4thFloor": "Empty",
+        "2ndFloor": "Empty",
+        "TorgBridge": "Empty",
         "color" : "green",
 }
 
@@ -182,8 +184,14 @@ def startApp():
     channel.basic_consume(on_message_callback=call4th, queue='4Lib')
     channel.basic_consume(on_message_callback=call2nd, queue='2Lib')
     channel.basic_consume(on_message_callback=callTorg, queue='TorgB')
-
+    
     channel.start_consuming()
+    """ 
+    while(1):
+        x, y, returnMessage = channel.basic_get('4Lib')
+        x, y, returnMessage = channel.basic_get('2Lib')
+        x, y, returnMessage = channel.basic_get('TorgB')
+    """
 
 client = pymongo.MongoClient()
 db = client.final_Proj
