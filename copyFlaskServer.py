@@ -216,7 +216,7 @@ def call4th(ch, method, properties, body):
         r = requests.get(send)
       #  print("4thLib is Full")
     if p == "Empty":
-        send = ""http://" + str(ip) + "/Update/Fourth/Empty"
+        send = "http://" + str(ip) + "/Update/Fourth/Empty"
         r = requests.get(send)
 
 def call2nd(ch, method, properties, body):
@@ -229,7 +229,7 @@ def call2nd(ch, method, properties, body):
         SecondVal = "Full"
        # print("2ndLib is Full")
     if p == "Empty":
-        send = ""http://" + str(ip) + "/Update/Second/Empty"
+        send = "http://" + str(ip) + "/Update/Second/Empty"
         r = requests.get(send)
 
 
@@ -244,7 +244,7 @@ def callTorg(ch, method, properties, body):
         
         r = requests.get(send)
     if p == "Empty":
-        send = ""http://" + str(ip) + "/Update/Torg/Empty"
+        send = "http://" + str(ip) + "/Update/Torg/Empty"
         r = requests.get(send)
     
 
