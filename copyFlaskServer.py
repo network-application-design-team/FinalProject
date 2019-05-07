@@ -86,6 +86,7 @@ def blink(pin):
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin, GPIO.OUT)
     GPIO.output(pin, GPIO.HIGH)
+    
 def turnOff(pin):
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin, GPIO.OUT)
@@ -96,6 +97,12 @@ def redOn():
 
 def greenOn():
     blink(gPin)
+
+def redOff():
+    turnOff(rPin)
+
+def greenOff():
+    turnOff(gPin)
 
 def off():
     turnOff(rPin)
@@ -206,16 +213,19 @@ def changeLoc(location, cap):
     return "0"
 
 
-
 def call4th(ch, method, properties, body):
     x, y, place = channel.basic_get('4Lib')
     p = body.decode('utf-8')
     if p == "Full":
+        greenOff()
+        redOn()
         FourthVal = "Full"
         send = "http://" + str(ip) + "/Update/Fourth/Full"
         r = requests.get(send)
       #  print("4thLib is Full")
     if p == "Empty":
+        redOff()
+        greenOn()
         send = "http://" + str(ip) + "/Update/Fourth/Empty"
         r = requests.get(send)
 
@@ -224,11 +234,15 @@ def call2nd(ch, method, properties, body):
     
     p = body.decode('utf-8')
     if p == "Full":
+        greenOff()
+        redOn()
         send = "http://" + str(ip) + "/Update/Second/Full"
         r = requests.get(send)
         SecondVal = "Full"
        # print("2ndLib is Full")
     if p == "Empty":
+        redOff()
+        greenOn()
         send = "http://" + str(ip) + "/Update/Second/Empty"
         r = requests.get(send)
 
@@ -240,10 +254,14 @@ def callTorg(ch, method, properties, body):
     p = body.decode('utf-8')
 #    print(p)
     if p == "Full":
+        greenOff()
+        redOn()
         send = "http://" + str(ip) + "/Update/Torg/Full"
         
         r = requests.get(send)
     if p == "Empty":
+        redOff()
+        greenOn()
         send = "http://" + str(ip) + "/Update/Torg/Empty"
         r = requests.get(send)
     
@@ -277,6 +295,8 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=80, debug=True)
     except KeyboardInterrupt:
 #        zeroconf.close()
+        off()
+        GPIO.cleanup()
         channel.queue_delete(queue='TorgB')
         channel.queue_delete(queue='2Lib')
         channel.queue_delete(queue='4Lib')
