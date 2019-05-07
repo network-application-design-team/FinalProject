@@ -104,7 +104,7 @@ def redOff():
 def greenOff():
     turnOff(gPin)
 
-def off():
+def whiteOff():
     turnOff(rPin)
     turnOff(gPin)
     turnOff(bPin)
@@ -295,10 +295,14 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=80, debug=True)
     except KeyboardInterrupt:
 #        zeroconf.close()
-        off()
-        GPIO.cleanup()
         channel.queue_delete(queue='TorgB')
         channel.queue_delete(queue='2Lib')
         channel.queue_delete(queue='4Lib')
         connection.close()
         col.delete_many({"Delete": "True"})
+        whiteOff()
+        redOff()
+        greenOff()
+        GPIO.cleanup()
+       
+       
