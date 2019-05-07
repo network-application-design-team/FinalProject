@@ -42,6 +42,7 @@ try:
         input = GPIO.input(4)
         # Test if input is high or low
         if (input != prevState): 
+            time.sleep(1)
             if (input == 1):
                 cap = "Full"
             else:
@@ -64,7 +65,7 @@ try:
                 print("Not a correct place")
             prevState = input
         # Slight Pause
-        time.sleep(0.1)
+        time.sleep(.1)
 except KeyboardInterrupt:
     pass
 finally:
