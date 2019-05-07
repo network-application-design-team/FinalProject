@@ -90,7 +90,7 @@ def blink(pin):
 def turnOff(pin):
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(pin, GPIO.OUT)
-    GPIO.output(GPIO.LOW)
+    GPIO.output(pin, GPIO.LOW)
 
 def redOn():
     blink(rPin)
