@@ -1,7 +1,7 @@
 from six.moves import input
 #from zeroconf import ServiceBrowser, Zeroconf, ServiceInfo
 from flask import make_response, Flask, request, render_template, Response, url_for
-
+from multiprocessing import Process
 
 from functools import wraps
 import datetime
@@ -104,7 +104,7 @@ def redOff():
 def greenOff():
     turnOff(gPin)
 
-def off():
+def whiteOff():
     turnOff(rPin)
     turnOff(gPin)
     turnOff(bPin)
@@ -166,7 +166,7 @@ def hello():
         now = datetime.datetime.now()
         timeString = now.strftime("%Y-%m-%d %H:%M")
         templateData["time"] = timeString
-        print(templateData)
+        #print(templateData)
         return render_template("main.html", time=timeString, FourthFloor=templateData["FourthFloor"], SecondFloor=templateData["SecondFloor"], TorgBridge=templateData["TorgBridge"])
 
 @app.route("/4thLib", methods=['GET'])
@@ -228,6 +228,8 @@ def call4th(ch, method, properties, body):
         greenOn()
         send = "http://" + str(ip) + "/Update/Fourth/Empty"
         r = requests.get(send)
+    post["4thLib"] = p
+    insertMongoEntry()
 
 def call2nd(ch, method, properties, body):
     x, y, place = channel.basic_get('2Lib')
@@ -245,6 +247,8 @@ def call2nd(ch, method, properties, body):
         greenOn()
         send = "http://" + str(ip) + "/Update/Second/Empty"
         r = requests.get(send)
+    post["2ndLib"] = p
+    insertMongoEntry()
 
 
 def callTorg(ch, method, properties, body):
@@ -264,6 +268,8 @@ def callTorg(ch, method, properties, body):
         greenOn()
         send = "http://" + str(ip) + "/Update/Torg/Empty"
         r = requests.get(send)
+    post["TorgB"] = p
+    insertMongoEntry()
     
 
 def startApp():
@@ -279,11 +285,29 @@ client = pymongo.MongoClient()
 db = client.final_Proj
 db.authenticate("Kishan", "Buse", source="final_Proj")
 col = db.service_auth
+dataB = db.HistoryData
+
+post = {"Time": "",
+        "4thLib": "Empty",
+        "2ndLib": "Empty",
+        "TorgB": "Empty",
+        }
+
+def insertMongoEntry():
+    try:
+        post["Time"] = datetime.datetime.utcnow()
+        dataB.insert_one(post)
+    except:
+        return 0
 
 if __name__ == "__main__":
+    t = threading.Thread(target=startApp)
+    t.start()
+    
+
+
     try:
-        t = threading.Thread(target=startApp)
-        t.start()
+        GPIO.cleanup()
         FourthVal = "Empty"
         SecondVal = "Empty"
         TorgVal = "Empty"
@@ -292,13 +316,28 @@ if __name__ == "__main__":
         user3 = {"user": "Ethan", "Pass": "Password", "Delete": "True"}
         posts = [user1, user2, user3]
         col.insert_many(posts)
-        app.run(host="0.0.0.0", port=80, debug=True)
+        host = "0.0.0.0"
+        port=80
+        debug=True
+        server = Process(target=app.run, args=(host,port,debug))
+        server.start()
+        while(1):
+           pass 
+#        app.run(host="0.0.0.0", port=80, debug=True)
     except KeyboardInterrupt:
 #        zeroconf.close()
-        off()
         GPIO.cleanup()
+        server.terminate()
+        server.join()
+        t.join()
         channel.queue_delete(queue='TorgB')
         channel.queue_delete(queue='2Lib')
         channel.queue_delete(queue='4Lib')
         connection.close()
         col.delete_many({"Delete": "True"})
+        whiteOff()
+        redOff()
+        greenOff()
+        GPIO.cleanup()
+        exit()
+       
