@@ -42,7 +42,7 @@ try:
         input = GPIO.input(4)
         # Test if input is high or low
         if (input != prevState): 
-            time.sleep(1)
+            time.sleep(5)
             if (input == 1):
                 cap = "Full"
             else:
